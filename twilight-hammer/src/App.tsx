@@ -1,11 +1,26 @@
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { Button, Input, Subtitle1 } from "@fluentui/react-components";
+import {
+  Button,
+  Input,
+  makeStyles,
+  Subtitle1,
+  tokens,
+} from "@fluentui/react-components";
 import { call } from "./containers/api";
 import { useState } from "react";
 
+const useStyles = makeStyles({
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: tokens.spacingVerticalMNudge,
+  },
+});
 function App() {
+  const styles = useStyles();
   const [toSend, SetToSend] = useState<string>("Hello Twilight Hammer!");
   const [received, SetReceived] = useState<string>("");
   return (
@@ -19,7 +34,7 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className="card">
+      <div className={styles.card}>
         <Input
           value={toSend}
           onChange={(event) => {
@@ -33,7 +48,7 @@ function App() {
             )
           }
         >
-          Send the number to host
+          Send the above message to host
         </Button>
         <Subtitle1>Received: {received}</Subtitle1>
       </div>

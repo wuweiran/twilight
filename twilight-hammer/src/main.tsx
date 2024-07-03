@@ -9,6 +9,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <FluentProvider theme={webLightTheme}>
       <App />
     </FluentProvider>
-    ,
   </React.StrictMode>
 );
