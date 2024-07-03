@@ -1,11 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+import { Button, Input, Subtitle1 } from "@fluentui/react-components";
+import { call } from "./containers/api";
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [toSend, SetToSend] = useState<string>("Hello Twilight Hammer!");
+  const [received, SetReceived] = useState<string>("");
   return (
     <>
       <div>
@@ -18,18 +20,28 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        <Input
+          value={toSend}
+          onChange={(event) => {
+            SetToSend(event.target.value);
+          }}
+        />
+        <Button
+          onClick={() =>
+            call<string, string>("/hello", toSend).then((result) =>
+              SetReceived(result)
+            )
+          }
+        >
+          Send the number to host
+        </Button>
+        <Subtitle1>Received: {received}</Subtitle1>
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

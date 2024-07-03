@@ -3,9 +3,11 @@
 
 #include "framework.h"
 #include "twilight.h"
-#include "pathcch.h"
-#include "WebView2EnvironmentOptions.h"
+#include <pathcch.h>
+#include <WebView2EnvironmentOptions.h>
 #include <string>
+#include <json/json.h>
+#include <sstream>
 
 using namespace Microsoft::WRL;
 
@@ -75,6 +77,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
+std::string ConvertPWSTRToString(PWSTR pwsz) {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, pwsz, -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, pwsz, -1, &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+
+PWSTR ConvertStringToPWSTR(const std::string& str) {
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    PWSTR pwsz = new WCHAR[size_needed];
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, pwsz, size_needed);
+    return pwsz;
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance;
@@ -135,9 +151,40 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 					   webview->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
 						   [](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
 							   wil::unique_cotaskmem_string message;
-							   args->TryGetWebMessageAsString(&message);
-							   // processMessage(&message);
-							   webview->PostWebMessageAsString(message.get());
+							   HRESULT result = args->get_WebMessageAsJson(&message);
+                               if (result != S_OK) {
+                                   return E_FAIL;
+                               }
+
+                               PWSTR payload = message.get();
+                               Json::CharReaderBuilder readerBuilder;
+                               Json::Value root;
+                               std::string errs;
+
+                               std::string jsonString = ConvertPWSTRToString(payload);
+                               std::istringstream s(jsonString);
+                               if (!Json::parseFromStream(readerBuilder, s, &root, &errs)) {
+                                   return E_FAIL;
+                               }
+
+                               std::string uri = root["uri"].asString();
+                               std::string requestId = root["requestId"].asString();
+                               Json::Value data = root["data"];
+                               if (uri.empty() || requestId.empty() || data.isNull()) {
+                                   return E_FAIL;
+                               }
+
+                               Json::Value apiResponse;
+                               apiResponse["requestId"] = requestId;
+                               apiResponse["code"] = (int)S_OK;
+                               apiResponse["data"] = data;
+                               Json::StreamWriterBuilder wbuilder;
+                               wbuilder["indentation"] = "";
+                               PWSTR apiResponseJsonString = ConvertStringToPWSTR(Json::writeString(wbuilder, apiResponse));
+                               webview->PostWebMessageAsJson(apiResponseJsonString);
+
+                               delete[] apiResponseJsonString;
+
 							   return S_OK;
 						   }).Get(), &token);
 

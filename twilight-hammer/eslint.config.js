@@ -10,42 +10,42 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default tseslint.config(
-    js.configs.recommended,
-    eslint.configs.recommended,
-    reactRecommended,
-    reactJsxRuntime,
-    ...tseslint.configs.recommendedTypeChecked,
-    eslintConfigPrettier,
-    {
-        files: ["**/*.{ts,tsx}"],
-        languageOptions: {
-            ecmaVersion: "latest",
-            sourceType: "module",
-            parser: tseslint.parser,
-            parserOptions: {
-                project: ["./tsconfig.json", "./tsconfig.node.json"],
-                tsconfigRootDir: import.meta.dirname,
-                ecmaFeatures: {
-                    jsx: true,
-                },
-            },
-            globals: {
-                ...globals.browser,
-            },
+  js.configs.recommended,
+  eslint.configs.recommended,
+  reactRecommended,
+  reactJsxRuntime,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintConfigPrettier,
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      parser: tseslint.parser,
+      parserOptions: {
+        project: ["./tsconfig.json", "./tsconfig.node.json"],
+        tsconfigRootDir: import.meta.dirname,
+        ecmaFeatures: {
+          jsx: true,
         },
-        plugins: {
-            react,
-            "react-refresh": reactRefresh,
-            "react-hooks": reactHooks,
-            "@typescript-eslint": tseslint.plugin,
-        },
-        rules: {
-            "react-refresh/only-export-components": [
-                "warn",
-                { allowConstantExport: true },
-            ],
-            ...reactHooks.configs.recommended.rules,
-        },
-        ignores: ["dist", "eslint.config.js"],
-    }
+      },
+      globals: {
+        ...globals.browser,
+      },
+    },
+    plugins: {
+      react,
+      "react-refresh": reactRefresh,
+      "react-hooks": reactHooks,
+      "@typescript-eslint": tseslint.plugin,
+    },
+    rules: {
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
+      ...reactHooks.configs.recommended.rules,
+    },
+    ignores: ["dist", "eslint.config.js"],
+  }
 );
