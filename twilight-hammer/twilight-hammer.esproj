@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.784122">
   <PropertyGroup>
-    <StartupCommand>npm run dev</StartupCommand>
+    <StartupCommand>npm run dev -- --port 5174</StartupCommand>
     <JavaScriptTestRoot>src\</JavaScriptTestRoot>
     <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
     <!-- Allows the build (or compile) script located on package.json to run on Build -->
@@ -10,5 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include=".vscode\launch.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\i18n\en\" />
+    <Folder Include="src\i18n\zh\" />
   </ItemGroup>
 </Project>
