@@ -101,7 +101,7 @@
     </Link>
     <PreBuildEvent>
       <Command>cd $(SolutionDir)twilight-hammer
-npm run build --no-color -- --outDir $(TargetDir) --base ""</Command>
+set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -143,7 +143,7 @@ npm run build --no-color -- --outDir $(TargetDir) --base ""</Command>
     </Link>
     <PreBuildEvent>
       <Command>cd $(SolutionDir)twilight-hammer
-npm run build --no-color -- --outDir $(TargetDir) --base ""</Command>
+set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
