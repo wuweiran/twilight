@@ -151,11 +151,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 #ifdef _DEBUG
 						webview->Navigate(L"http://localhost:5174/");
 #else
-						WCHAR path[MAX_PATH];
+						WCHAR url[MAX_PATH + 8];
+						wcsncpy_s(url, L"file:///", 8);
+						WCHAR* path = url + 8;
 						GetModuleFileName(NULL, path, MAX_PATH);
 						PathCchRemoveFileSpec(path, MAX_PATH);
 						PathCchAppend(path, MAX_PATH, L"index.html");
-						webview->Navigate(path);
+						webview->Navigate(url);
 #endif
 
 						EventRegistrationToken token;
