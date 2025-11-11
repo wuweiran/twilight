@@ -13,6 +13,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Disable text selection everywhere */
+body, body * {
+    -webkit-user-select: none; /* Edge/Chromium */
+    user-select: none;
+}
+
+/* Enable text selection for inputs and textareas */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
