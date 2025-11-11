@@ -68,21 +68,23 @@ const Home = () => {
   return (
     <>
       <div className={styles.bar}>
-        <a href="https://vitejs.dev" target="_blank">
+        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" rel="noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
         <a
           href="https://developer.microsoft.com/en-us/microsoft-edge/webview2"
           target="_blank"
+          rel="noreferrer"
         >
           <img src={edgeLogo} className="logo react" alt="WebView2 logo" />
         </a>
         <a
           href="https://learn.microsoft.com/en-us/cpp/windows/overview-of-windows-programming-in-cpp"
           target="_blank"
+          rel="noreferrer"
         >
           <img src={cppLogo} className="logo react" alt="C++ logo" />
         </a>

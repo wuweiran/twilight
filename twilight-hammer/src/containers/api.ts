@@ -7,6 +7,7 @@ type ApiResponse<T> = {
 
 let pendingRequests = new Map<
   string,
+  // eslint-disable-next-line no-unused-vars
   { resolve: (value: ApiResponse<any>) => void; reject: (reason?: any) => void }
 >();
 

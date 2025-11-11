@@ -1,4 +1,3 @@
-import js from "@eslint/js";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
@@ -10,11 +9,9 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 export default tseslint.config(
-  js.configs.recommended,
   eslint.configs.recommended,
   reactRecommended,
   reactJsxRuntime,
-  ...tseslint.configs.recommendedTypeChecked,
   eslintConfigPrettier,
   {
     files: ["**/*.{ts,tsx}"],
@@ -40,6 +37,7 @@ export default tseslint.config(
       "@typescript-eslint": tseslint.plugin,
     },
     rules: {
+      ...tseslint.configs.recommendedTypeChecked.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
@@ -47,5 +45,12 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
     },
     ignores: ["dist", "eslint.config.js"],
-  }
+  },
+  {
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    },
+  },
 );
