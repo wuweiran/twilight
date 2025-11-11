@@ -15,4 +15,7 @@
     <Folder Include="src\i18n\en\" />
     <Folder Include="src\i18n\zh\" />
   </ItemGroup>
+  <ItemGroup>
+    <TypeScriptConfiguration Include="eslint-tsconfig.json" />
+  </ItemGroup>
 </Project>
