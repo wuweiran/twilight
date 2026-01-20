@@ -1,12 +1,9 @@
-#define VSPlatform "{param:PLATFORM}"
-#define SourceDir "{param:TARGETDIR}"
-
 #if VSPlatform == "x64"
-  #define Architecture "x64"
-#elif VSPlatform == "ARM64EC"
+  #define Architecture "x64os"
+#elif VSPlatform == "ARM64"
   #define Architecture "arm64"
 #else
-  #define Architecture "x86"
+  #define Architecture "arm32compatible"
 #endif
 
 [Setup]
@@ -28,7 +25,7 @@ DefaultGroupName=Twilight
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
-OutputBaseFilename=twilight_setup_{#VSPlatform}.exe
+OutputBaseFilename=twilight_setup_{#VSPlatform}
 SolidCompression=yes
 WizardStyle=modern
 
@@ -43,7 +40,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#SourceDir}\twilight.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\twilight.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\jsoncpp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\index.html"; DestDir: "{app}"; Flags: ignoreversion
