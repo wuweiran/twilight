@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\handlers">
+      <UniqueIdentifier>{030a8ec3-c6ad-44a6-998f-100822976fad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -27,10 +30,19 @@
     <ClInclude Include="twilight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="handlers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="twilight.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hello.cpp">
+      <Filter>Source Files\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="file.cpp">
+      <Filter>Source Files\handlers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

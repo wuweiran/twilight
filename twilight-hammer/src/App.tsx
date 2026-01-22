@@ -4,16 +4,17 @@ import cppLogo from "./assets/cpp.svg";
 import edgeLogo from "./assets/edge.png";
 import "./App.css";
 import {
-  Button,
   Caption1,
-  Input,
   makeStyles,
-  Subtitle1,
   Title1,
   NavDrawer,
   NavDrawerBody,
   NavItem,
   tokens,
+  Accordion,
+  AccordionItem,
+  AccordionHeader,
+  AccordionPanel,
 } from "@fluentui/react-components";
 import {
   bundleIcon,
@@ -24,9 +25,10 @@ import {
   Lightbulb24Regular,
   Lightbulb24Filled,
 } from "@fluentui/react-icons";
-import { call } from "./containers/api";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SendMessage } from "./components/SendMessage";
+import { OpenFile } from "./components/OpenFile";
 
 const useStyles = makeStyles({
   root: {
@@ -34,7 +36,7 @@ const useStyles = makeStyles({
     width: "100vw",
     height: "100vh",
   },
-  background: {
+  center: {
     flex: "1",
     display: "flex",
     alignItems: "center",
@@ -49,11 +51,6 @@ const useStyles = makeStyles({
     alignItems: "center",
     justifyContent: "space-evenly",
   },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    gap: tokens.spacingVerticalMNudge,
-  },
 });
 
 const HomeIcon = bundleIcon(Home24Filled, Home24Regular);
@@ -66,73 +63,68 @@ const Home = () => {
   const styles = useStyles();
   const { t } = useTranslation();
   return (
-    <>
-      <div className={styles.bar}>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-        <a
-          href="https://developer.microsoft.com/en-us/microsoft-edge/webview2"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <img src={edgeLogo} className="logo react" alt="WebView2 logo" />
-        </a>
-        <a
-          href="https://learn.microsoft.com/en-us/cpp/windows/overview-of-windows-programming-in-cpp"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <img src={cppLogo} className="logo react" alt="C++ logo" />
-        </a>
+    <div className={styles.center}>
+      <div className={styles.content}>
+        <div className={styles.bar}>
+          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
+            <img src={viteLogo} className="logo" alt="Vite logo" />
+          </a>
+          <a href="https://react.dev" target="_blank" rel="noreferrer">
+            <img src={reactLogo} className="logo react" alt="React logo" />
+          </a>
+          <a
+            href="https://developer.microsoft.com/en-us/microsoft-edge/webview2"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img src={edgeLogo} className="logo react" alt="WebView2 logo" />
+          </a>
+          <a
+            href="https://learn.microsoft.com/en-us/cpp/windows/overview-of-windows-programming-in-cpp"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img src={cppLogo} className="logo react" alt="C++ logo" />
+          </a>
+        </div>
+        <Title1>Vite + React + WebView2 + C++</Title1>
+        <br />
+        <Caption1>{t("learn more")}</Caption1>
       </div>
-      <Title1>Vite + React + WebView2 + C++</Title1>
-      <br />
-      <Caption1>{t("learn more")}</Caption1>
-    </>
-  );
-};
-
-const Example = () => {
-  const styles = useStyles();
-  const [toSend, SetToSend] = useState<string>("Hello Twilight Hammer!");
-  const [received, SetReceived] = useState<string>("");
-  const { t } = useTranslation();
-  return (
-    <div className={styles.card}>
-      <Input
-        value={toSend}
-        onChange={(event) => {
-          SetToSend(event.target.value);
-        }}
-      />
-      <Button
-        onClick={() =>
-          call<string, string>("/hello", toSend).then((result) =>
-            SetReceived(result)
-          )
-        }
-      >
-        {t("send to host")}
-      </Button>
-      <Subtitle1>
-        {t("received")}
-        {received}
-      </Subtitle1>
     </div>
   );
 };
 
-const About = () => {
+const Example = () => {
+  const { t } = useTranslation();
   return (
-    <>
-      <Title1>Twilight Hammer</Title1>
-      <br />
-      <Caption1>©2024-2025 M1Knight Technology</Caption1>
-    </>
+    <Accordion>
+      <AccordionItem value="1">
+        <AccordionHeader>{t("example.send to host")}</AccordionHeader>
+        <AccordionPanel>
+          <SendMessage />
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem value="2">
+        <AccordionHeader>{t("example.open file")}</AccordionHeader>
+        <AccordionPanel>
+          <OpenFile />
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+const About = () => {
+  const styles = useStyles();
+  return (
+    <div className={styles.center}>
+      <div className={styles.content}>
+        <Title1>Twilight Hammer</Title1>
+        <br />
+        <Caption1>©2024-2025 M1Knight Technology</Caption1>
+      </div>
+    </div>
   );
 };
 
@@ -163,9 +155,7 @@ function App() {
           </NavItem>
         </NavDrawerBody>
       </NavDrawer>
-      <div className={styles.background}>
-        <div className={styles.content}>
-          {(() => {
+      {(() => {
             switch (tab) {
               case "home":
                 return <Home />;
@@ -177,8 +167,6 @@ function App() {
                 return <></>;
             }
           })()}
-        </div>
-      </div>
     </div>
   );
 }

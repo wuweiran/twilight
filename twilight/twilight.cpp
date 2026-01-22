@@ -5,11 +5,12 @@
 #include "twilight.h"
 #include <pathcch.h>
 #include <WebView2EnvironmentOptions.h>
-#include <string>
 #include <json/json.h>
 #include <sstream>
 #include <unordered_map>
 #include <functional>
+#include "handlers.h"
+#include <ShObjIdl.h>
 
 using namespace Microsoft::WRL;
 
@@ -93,14 +94,13 @@ PWSTR ConvertStringToPWSTR(const std::string& str) {
 }
 
 std::unordered_map<std::string, std::function<Json::Value(const Json::Value&)>> requestHandlers;
-
-Json::Value HelloHandler(const Json::Value& data) {
-	Json::Value response = data;
-	return response;
-}
+std::unordered_map<std::string, std::function<void(const std::string&, const Json::Value&)>> asyncRequestHandlers;
 
 void RegisterHandlers() {
 	requestHandlers["/hello"] = HelloHandler;
+	asyncRequestHandlers["/file/open"] = FileOpenHandler;
+	requestHandlers["/file/getContent"] = FileGetContentHandler;
+	requestHandlers["/file/writeToPath"] = FileWriteToPathHandler;
 }
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
@@ -188,25 +188,40 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 								Json::Value data = root["data"];
 								if (uri.empty() || requestId.empty() || data.isNull()) return E_FAIL;
 
-								Json::Value apiResponse;
-								apiResponse["requestId"] = requestId;
-								apiResponse["code"] = (int)S_OK;
-
 								// Dispatch to registered handler
 								auto handler = requestHandlers.find(uri);
 								if (handler != requestHandlers.end()) {
-									apiResponse["data"] = handler->second(data);
+									// synchronous handler: return result immediately
+									Json::Value apiResponse = handler->second(data);
+									apiResponse["requestId"] = requestId;
+
+									Json::StreamWriterBuilder wbuilder;
+									wbuilder["indentation"] = "";
+									PWSTR apiResponseJsonString = ConvertStringToPWSTR(Json::writeString(wbuilder, apiResponse));
+									webview->PostWebMessageAsJson(apiResponseJsonString);
+									delete[] apiResponseJsonString;
 								}
 								else {
-									apiResponse["code"] = (int)E_FAIL;
-									apiResponse["info"] = "Unknown URI";
-								}
+									auto asyncHandler = asyncRequestHandlers.find(uri);
+									if (asyncHandler != asyncRequestHandlers.end()) {
+										// asynchronous handler: call it, do NOT post any response here
+										// the async handler itself will post to WebView2 later (e.g., via WndProc)
+										asyncHandler->second(requestId, data);
+									}
+									else {
+										// unknown URI: return error immediately
+										Json::Value apiResponse;
+										apiResponse["code"] = (int)E_FAIL;
+										apiResponse["info"] = "Unknown URI";
+										apiResponse["requestId"] = requestId;
 
-								Json::StreamWriterBuilder wbuilder;
-								wbuilder["indentation"] = "";
-								PWSTR apiResponseJsonString = ConvertStringToPWSTR(Json::writeString(wbuilder, apiResponse));
-								webview->PostWebMessageAsJson(apiResponseJsonString);
-								delete[] apiResponseJsonString;
+										Json::StreamWriterBuilder wbuilder;
+										wbuilder["indentation"] = "";
+										PWSTR apiResponseJsonString = ConvertStringToPWSTR(Json::writeString(wbuilder, apiResponse));
+										webview->PostWebMessageAsJson(apiResponseJsonString);
+										delete[] apiResponseJsonString;
+									}
+								}
 
 								return S_OK;
 							}).Get(), &token);
@@ -233,6 +248,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+	case WM_APP_FILE_OPEN: // async file open
+	{
+		// Retrieve requestId
+		std::string* requestId = reinterpret_cast<std::string*>(lParam);
+		if (!requestId) break;
+
+		Json::Value result(Json::arrayValue);
+
+		wil::com_ptr<IFileOpenDialog> dialog;
+		HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&dialog));
+		if (SUCCEEDED(hr)) {
+			dialog->SetOptions(FOS_FORCEFILESYSTEM | FOS_FILEMUSTEXIST);
+
+			hr = dialog->Show(hWnd);
+			if (SUCCEEDED(hr)) {
+				wil::com_ptr<IShellItem> item;
+				hr = dialog->GetResult(&item);
+				if (SUCCEEDED(hr)) {
+					PWSTR path = nullptr;
+					hr = item->GetDisplayName(SIGDN_FILESYSPATH, &path);
+					if (SUCCEEDED(hr)) {
+						result.append(ConvertPWSTRToString(path));
+						CoTaskMemFree(path);
+					}
+				}
+			}
+		}
+
+		// Post result back to WebView2 using the same requestId
+		Json::Value response;
+		response["requestId"] = *requestId;
+		response["code"] = (int)hr;
+		response["data"] = result;
+
+		Json::StreamWriterBuilder wbuilder;
+		wbuilder["indentation"] = "";
+		PWSTR json = ConvertStringToPWSTR(Json::writeString(wbuilder, response));
+		webview->PostWebMessageAsJson(json);
+		delete[] json;
+
+		delete requestId; // free memory
+	}
+	break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

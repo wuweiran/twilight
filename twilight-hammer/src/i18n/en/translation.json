@@ -1,10 +1,17 @@
 {
-  "send to host": "Send the input message to host",
   "learn more": "Click on the above logos to learn more",
-  "received": "Received: ",
   "nav": {
     "home": "Home",
     "example": "Example",
     "about": "About"
+  },
+  "example": {
+    "send to host": "Send the input message to host",
+    "send": "Send",
+    "received": "Received: ",
+    "open file": "Open a file",
+    "open": "Open",
+    "selected file": "Selected File",
+    "file preview": "File Preview"
   }
 }

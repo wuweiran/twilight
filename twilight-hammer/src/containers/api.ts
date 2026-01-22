@@ -36,7 +36,6 @@ export function call<Request, Response>(
     pendingRequests.set(requestId, { resolve, reject });
     // @ts-ignore:next-line
     window.chrome.webview.postMessage({ requestId, uri, data: request });
-    setTimeout(() => reject("timeout"), 1000);
   }).then((response) => {
     if (response.code < 0) {
       return Promise.reject(response);

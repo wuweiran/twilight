@@ -1,10 +1,17 @@
 {
-  "send to host": "将所输入消息发送到主机端",
   "learn more": "可以通过点击上面的标志进一步了解",
-  "received": "收到了：",
   "nav": {
     "home": "主页",
     "example": "示例",
     "about": "关于"
+  },
+  "example": {
+    "send to host": "将所输入消息发送到主机端",
+    "send": "发送",
+    "received": "收到了：",
+    "open file": "打开文件",
+    "open": "打开",
+    "selected file": "已选择文件",
+    "file preview": "文件预览"
   }
 }
