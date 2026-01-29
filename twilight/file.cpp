@@ -1,5 +1,6 @@
 #include "handlers.h"
 #include <fstream>
+#include <filesystem>
 #include <wil/com.h>
 
 static const char* BASE64_CHARS =
@@ -43,7 +44,8 @@ Json::Value FileGetContentHandler(const Json::Value& data) {
 
 
     if (mode == "text") {
-        std::ifstream file(path, std::ios::in | std::ios::binary);
+        std::ifstream file(std::filesystem::path(reinterpret_cast<const char8_t*>(path.c_str())),
+            std::ios::in | std::ios::binary);
         if (!file) {
             response["code"] = (int)E_FAIL;
             response["info"] = "Failed to open file";
