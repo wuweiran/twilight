@@ -41,10 +41,8 @@ const useStyles = makeStyles({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: tokens.spacingVerticalM,
-  },
-  content: {
-    width: "fit-content",
+    gap: tokens.spacingVerticalM,
+    flexFlow: "column",
   },
   bar: {
     display: "flex",
@@ -64,33 +62,30 @@ const Home = () => {
   const { t } = useTranslation();
   return (
     <div className={styles.center}>
-      <div className={styles.content}>
-        <div className={styles.bar}>
-          <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank" rel="noreferrer">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
-          <a
-            href="https://developer.microsoft.com/en-us/microsoft-edge/webview2"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <img src={edgeLogo} className="logo react" alt="WebView2 logo" />
-          </a>
-          <a
-            href="https://learn.microsoft.com/en-us/cpp/windows/overview-of-windows-programming-in-cpp"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <img src={cppLogo} className="logo react" alt="C++ logo" />
-          </a>
-        </div>
-        <Title1>Vite + React + WebView2 + C++</Title1>
-        <br />
-        <Caption1>{t("learn more")}</Caption1>
+      <div className={styles.bar}>
+        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank" rel="noreferrer">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+        <a
+          href="https://developer.microsoft.com/en-us/microsoft-edge/webview2"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img src={edgeLogo} className="logo edge" alt="WebView2 logo" />
+        </a>
+        <a
+          href="https://learn.microsoft.com/en-us/cpp/windows/overview-of-windows-programming-in-cpp"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img src={cppLogo} className="logo cpp" alt="C++ logo" />
+        </a>
       </div>
+      <Title1>Vite + React + WebView2 + C++</Title1>
+      <Caption1>{t("learn more")}</Caption1>
     </div>
   );
 };
@@ -119,11 +114,8 @@ const About = () => {
   const styles = useStyles();
   return (
     <div className={styles.center}>
-      <div className={styles.content}>
-        <Title1>Twilight Hammer</Title1>
-        <br />
-        <Caption1>©2024-2025 M1Knight Technology</Caption1>
-      </div>
+      <Title1>Twilight Hammer</Title1>
+      <Caption1>©2024-2025 M1Knight Technology</Caption1>
     </div>
   );
 };
@@ -156,17 +148,17 @@ function App() {
         </NavDrawerBody>
       </NavDrawer>
       {(() => {
-            switch (tab) {
-              case "home":
-                return <Home />;
-              case "example":
-                return <Example />;
-              case "about":
-                return <About />;
-              default:
-                return <></>;
-            }
-          })()}
+        switch (tab) {
+          case "home":
+            return <Home />;
+          case "example":
+            return <Example />;
+          case "about":
+            return <About />;
+          default:
+            return <></>;
+        }
+      })()}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Textarea, Text, makeStyles, tokens, mergeClasses } from "@fluentui/react-components";
+import { Button, Textarea, Text, makeStyles, tokens, mergeClasses, Label } from "@fluentui/react-components";
 import { DocumentText24Regular } from "@fluentui/react-icons";
 import { call } from "../containers/api";
 
@@ -9,7 +9,6 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     gap: tokens.spacingVerticalMNudge,
-    width: "400px",
   },
   preview: {
     width: "100%",
@@ -129,9 +128,9 @@ export const OpenFile = () => {
       setFilePath(path);
 
       // Step 2: Read file content as text
-      const content = await call<{ path: string; mode: "text" }, { mode: string; content: string }>(
-        "/file/getContent",
-        { path, mode: "text" }
+      const content = await call<{ path: string }, { mode: string; content: string }>(
+        "/file/getTextContent",
+        { path }
       );
 
       setFileContent(content.content);
@@ -150,6 +149,7 @@ export const OpenFile = () => {
             fullPath={filePath}
         />
       )}
+      <Label>{t("example.file content")}</Label>
       <Textarea
         className={styles.preview}
         value={fileContent}

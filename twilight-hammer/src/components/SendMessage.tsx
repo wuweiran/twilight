@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Input, makeStyles, Text, tokens } from "@fluentui/react-components";
+import {
+  Button,
+  Input,
+  Label,
+  makeStyles,
+  tokens,
+} from "@fluentui/react-components";
 import { call } from "../containers/api";
 
 const useStyles = makeStyles({
@@ -33,10 +39,8 @@ export const SendMessage = () => {
       >
         {t("example.send")}
       </Button>
-      <Text>
-        {t("example.received")}
-        {received}
-      </Text>
+      <Label>{t("example.received")}</Label>
+      <Input value={received} disabled />
     </div>
   );
 };

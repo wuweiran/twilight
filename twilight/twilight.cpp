@@ -98,8 +98,8 @@ std::unordered_map<std::string, std::function<void(const std::string&, const Jso
 
 void RegisterHandlers() {
 	requestHandlers["/hello"] = HelloHandler;
-	asyncRequestHandlers["/file/open"] = FileOpenHandler;
-	requestHandlers["/file/getContent"] = FileGetContentHandler;
+	asyncRequestHandlers["/file/open"] = FileOpenAsyncHandler;
+	requestHandlers["/file/getTextContent"] = FileGetTextContentHandler;
 	requestHandlers["/file/writeToPath"] = FileWriteToPathHandler;
 }
 
