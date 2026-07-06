@@ -42,8 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#SourceDir}\twilight.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\jsoncpp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\WebView2Loader.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\index.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceDir}\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

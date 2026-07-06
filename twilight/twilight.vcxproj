@@ -128,7 +128,7 @@
     </Link>
     <PreBuildEvent>
       <Command>cd $(SolutionDir)twilight-hammer
-set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Command>
+set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir)web --base "" --emptyOutDir</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -194,7 +194,7 @@ set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Comm
     </Link>
     <PreBuildEvent>
       <Command>cd $(SolutionDir)twilight-hammer
-set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Command>
+set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir)web --base "" --emptyOutDir</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -216,10 +216,11 @@ set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Comm
     </Link>
     <PreBuildEvent>
       <Command>cd $(SolutionDir)twilight-hammer
-set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Command>
+set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir)web --base "" --emptyOutDir</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dev_server.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="handlers.h" />
     <ClInclude Include="Resource.h" />
@@ -227,6 +228,7 @@ set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Comm
     <ClInclude Include="twilight.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dev_server.cpp" />
     <ClCompile Include="hello.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="twilight.cpp" />
@@ -261,5 +263,17 @@ set NO_COLOR=1 &amp;&amp; npm run build -- --outDir $(TargetDir) --base ""</Comm
   </Target>
   <Target Name="RunMyCommand" AfterTargets="Build">
     <Exec Command="echo $(ProjectDir) &amp;&amp; echo $(Platform)" />
+  </Target>
+  <Target Name="Publish" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' And '$(Publish)' == 'true'">
+    <PropertyGroup>
+      <InnoSetupPath Condition="'$(InnoSetupPath)' == ''">$([System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)'))\Inno Setup 6\ISCC.exe</InnoSetupPath>
+      <InnoSetupPath Condition="!Exists('$(InnoSetupPath)')">$(ProgramFiles)\Inno Setup 6\ISCC.exe</InnoSetupPath>
+      <PublishOutputDir>$(SolutionDir)dist</PublishOutputDir>
+      <PublishSourceDir>$(TargetDir.TrimEnd('\'))</PublishSourceDir>
+    </PropertyGroup>
+    <Warning Condition="!Exists('$(InnoSetupPath)')" Text="Inno Setup (ISCC.exe) not found at $(InnoSetupPath); skipping installer creation." />
+    <MakeDir Condition="Exists('$(InnoSetupPath)')" Directories="$(PublishOutputDir)" />
+    <Message Condition="Exists('$(InnoSetupPath)')" Importance="high" Text="Publishing installer to $(PublishOutputDir) ..." />
+    <Exec Condition="Exists('$(InnoSetupPath)')" Command="&quot;$(InnoSetupPath)&quot; /DVSPlatform=$(Platform) /DSourceDir=&quot;$(PublishSourceDir)&quot; /O&quot;$(PublishOutputDir)&quot; &quot;$(SolutionDir)setup_script.iss&quot;" />
   </Target>
 </Project>

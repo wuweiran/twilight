@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <functional>
 #include "handlers.h"
+#include "dev_server.h"
 #include <ShObjIdl.h>
 
 using namespace Microsoft::WRL;
@@ -38,6 +39,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
+	HRESULT coHr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	if (FAILED(coHr)) {
+		MessageBoxW(nullptr, L"Failed to initialize COM.", L"Twilight", MB_ICONERROR);
+		return FALSE;
+	}
+
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_TWILIGHT, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
@@ -55,6 +62,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	CoUninitialize();
 
 	return (int)msg.wParam;
 }
@@ -107,6 +116,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;
 
+#ifdef _DEBUG
+	// Start Vite and wait for it before creating any window, so a failure results
+	// in a clean exit rather than a visible, unresponsive window.
+	if (!StartDevServer()) {
+		MessageBoxW(nullptr, L"Failed to start the Vite dev server on the required port.", L"Twilight", MB_ICONERROR);
+		return FALSE;
+	}
+#endif
+
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
@@ -122,16 +140,30 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	ComPtr<CoreWebView2EnvironmentOptions> options = Make<CoreWebView2EnvironmentOptions>();
 	options->put_AdditionalBrowserArguments(L"--disable-web-security");
-	CreateCoreWebView2EnvironmentWithOptions(nullptr, nullptr, options.Get(),
+	HRESULT envHr = CreateCoreWebView2EnvironmentWithOptions(nullptr, nullptr, options.Get(),
 		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
 			[hWnd](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+				if (FAILED(result) || env == nullptr) {
+					MessageBoxW(hWnd, L"Failed to create the WebView2 environment.", L"Twilight", MB_ICONERROR);
+					DestroyWindow(hWnd);
+					return result;
+				}
 
 				// Create a CoreWebView2Controller and get the associated CoreWebView2 whose parent is the main window hWnd
 				env->CreateCoreWebView2Controller(hWnd, Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
 					[hWnd](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-						if (controller != nullptr) {
-							webviewController = controller;
-							webviewController->get_CoreWebView2(&webview);
+						if (FAILED(result) || controller == nullptr) {
+							MessageBoxW(hWnd, L"Failed to create the WebView2 controller.", L"Twilight", MB_ICONERROR);
+							DestroyWindow(hWnd);
+							return result;
+						}
+
+						webviewController = controller;
+						webviewController->get_CoreWebView2(&webview);
+						if (webview == nullptr) {
+							MessageBoxW(hWnd, L"Failed to obtain the WebView2 instance.", L"Twilight", MB_ICONERROR);
+							DestroyWindow(hWnd);
+							return E_POINTER;
 						}
 
 						wil::com_ptr<ICoreWebView2Settings> settings;
@@ -149,14 +181,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 						webviewController->put_Bounds(bounds);
 
 #ifdef _DEBUG
-						webview->Navigate(L"http://localhost:5174/");
+						if (!WaitForDevServer(30000)) {
+							MessageBoxW(nullptr, L"The Vite dev server did not become ready.", L"Twilight", MB_ICONERROR);
+							return FALSE;
+						}
+						std::wstring devUrl = GetDevServerUrl();
+						webview->Navigate(devUrl.c_str());
 #else
 						WCHAR url[MAX_PATH + 8];
 						wcsncpy_s(url, L"file:///", 8);
 						WCHAR* path = url + 8;
 						GetModuleFileName(NULL, path, MAX_PATH);
 						PathCchRemoveFileSpec(path, MAX_PATH);
-						PathCchAppend(path, MAX_PATH, L"index.html");
+						PathCchAppend(path, MAX_PATH, L"web\\index.html");
 						webview->Navigate(url);
 #endif
 
@@ -230,6 +267,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 					}).Get());
 				return S_OK;
 			}).Get());
+
+	if (FAILED(envHr)) {
+		MessageBoxW(hWnd, L"Failed to initialize WebView2.", L"Twilight", MB_ICONERROR);
+		return FALSE;
+	}
 
 	return TRUE;
 }

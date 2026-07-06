@@ -115,7 +115,7 @@ const About = () => {
   return (
     <div className={styles.center}>
       <Title1>Twilight Hammer</Title1>
-      <Caption1>©2024-2025 M1Knight Technology</Caption1>
+      <Caption1>©2024-2026 M1Knight Technology</Caption1>
     </div>
   );
 };
